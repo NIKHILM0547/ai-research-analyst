@@ -1,4 +1,4 @@
-from services.gemini_service import ask_gemini
+from services.llm_service import ask_llm
 
 
 def analyze_research(findings):
@@ -9,13 +9,13 @@ def analyze_research(findings):
 
 You are a senior business analyst.
 
-Analyze the findings below.
+Analyze these findings.
 
 Findings:
 
 {findings_text}
 
-Create:
+Generate:
 
 1. Executive Summary
 
@@ -31,6 +31,4 @@ Keep it concise.
 
 """
 
-    result = ask_gemini(prompt)
-
-    return result
+    return ask_llm(prompt)

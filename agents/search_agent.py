@@ -1,28 +1,36 @@
 from services.search_service import search_business
 
 
-def perform_research(query):
+def perform_search(plan):
 
-    print("\nSearch Agent researching...\n")
-
-    results = search_business(query)
+    print("\nSearch Agent working...\n")
 
     findings = []
 
-    for item in results:
+    for task in plan:
 
-        findings.append(
+        try:
 
-            {
+            results = search_business(task)
 
-                "title": item["title"],
+            for item in results:
 
-                "content": item["content"],
+                findings.append({
 
-                "url": item["url"]
+                    "task": task,
 
-            }
+                    "title": item["title"],
 
-        )
+                    "content": item["content"],
+
+                    "url": item["url"]
+
+                })
+
+        except Exception as e:
+
+            print(f"Error researching: {task}")
+
+            print(e)
 
     return findings

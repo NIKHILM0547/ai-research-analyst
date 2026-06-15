@@ -1,8 +1,8 @@
 def create_research_plan(company):
 
-    print("\nPlanner Agent is working...\n")
+    print("\nPlanner Agent working...\n")
 
-    plan = [
+    return [
 
         f"{company} company overview",
 
@@ -17,5 +17,3 @@ def create_research_plan(company):
         f"{company} opportunities"
 
     ]
-
-    return plan
