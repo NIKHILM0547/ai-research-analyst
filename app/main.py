@@ -1,17 +1,13 @@
-from agents.planner_agent import create_research_plan
+from workflows.research_workflow import graph
 
-from agents.search_agent import perform_search
+from utils.timer import start_timer
 
-from agents.validator_agent import validate_findings
-
-from agents.source_scorer_agent import score_sources
-
-from agents.analyst_agent import analyze
-
-from agents.writer_agent import create_document
+from utils.timer import stop_timer
 
 
 def main():
+
+    start = start_timer()
 
     company = input(
 
@@ -19,71 +15,33 @@ def main():
 
     )
 
-    # Planner
+    state = {
 
-    plan = create_research_plan(
+        "company": company
 
-        company
+    }
 
-    )
+    result = graph.invoke(
 
-    # Search
-
-    findings = perform_search(
-
-        plan
-
-    )
-
-    # Validator
-
-    findings = validate_findings(
-
-        findings
-
-    )
-
-    # Source Scorer
-
-    findings = score_sources(
-
-        findings
+        state
 
     )
 
     print(
 
-        "\n====== SOURCES ======\n"
+        result["document"]
 
     )
 
-    for item in findings:
+    elapsed = stop_timer(
 
-        print(
-
-            f"{item['score']} | {item['title']}"
-
-        )
-
-    # Analyst
-
-    report = analyze(
-
-        findings
-
-    )
-
-    # Writer
-
-    document = create_document(
-
-        report
+        start
 
     )
 
     print(
 
-        document
+        f"\nCompleted in {elapsed} seconds."
 
     )
 

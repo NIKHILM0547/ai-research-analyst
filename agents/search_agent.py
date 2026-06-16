@@ -1,4 +1,33 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from services.search_service import search_business
+
+
+def search_task(task):
+
+    results = search_business(task)
+
+    findings = []
+
+    for item in results:
+
+        findings.append(
+
+            {
+
+                "task": task,
+
+                "title": item["title"],
+
+                "content": item["content"],
+
+                "url": item["url"]
+
+            }
+
+        )
+
+    return findings
 
 
 def perform_search(plan):
@@ -7,30 +36,26 @@ def perform_search(plan):
 
     findings = []
 
-    for task in plan:
+    with ThreadPoolExecutor(
 
-        try:
+        max_workers=6
 
-            results = search_business(task)
+    ) as executor:
 
-            for item in results:
+        results = executor.map(
 
-                findings.append({
+            search_task,
 
-                    "task": task,
+            plan
 
-                    "title": item["title"],
+        )
 
-                    "content": item["content"],
+        for batch in results:
 
-                    "url": item["url"]
+            findings.extend(
 
-                })
+                batch
 
-        except Exception as e:
-
-            print(f"Error researching: {task}")
-
-            print(e)
+            )
 
     return findings
