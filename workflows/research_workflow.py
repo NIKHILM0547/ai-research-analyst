@@ -1,20 +1,19 @@
 from typing import TypedDict
 
+from langgraph.graph import StateGraph, END
+
 from agents.planner_agent import create_research_plan
-
 from agents.search_agent import perform_search
-
 from agents.validator_agent import validate_findings
-
 from agents.filter_agent import filter_findings
-
 from agents.source_scorer_agent import score_sources
-
 from agents.analyst_agent import analyze
-
 from agents.writer_agent import create_document
 
-from langgraph.graph import StateGraph
+from services.cache_service import get_cache
+from services.cache_service import save_cache
+
+from services.report_service import save_report
 
 
 class ResearchState(TypedDict):
@@ -29,8 +28,43 @@ class ResearchState(TypedDict):
 
     document: str
 
+    cached: bool
+
+
+# ---------------- CACHE ----------------
+
+
+def cache_node(state):
+
+    print("\nChecking cache...\n")
+
+    cached_document = get_cache(
+
+        state["company"]
+
+    )
+
+    if cached_document:
+
+        state["document"] = cached_document
+
+        state["cached"] = True
+
+    else:
+
+        state["cached"] = False
+
+    return state
+
+
+# ---------------- PLANNER ----------------
+
 
 def planner_node(state):
+
+    if state.get("cached"):
+
+        return state
 
     state["plan"] = create_research_plan(
 
@@ -41,7 +75,14 @@ def planner_node(state):
     return state
 
 
+# ---------------- SEARCH ----------------
+
+
 def search_node(state):
+
+    if state.get("cached"):
+
+        return state
 
     state["findings"] = perform_search(
 
@@ -52,7 +93,14 @@ def search_node(state):
     return state
 
 
+# ---------------- VALIDATOR ----------------
+
+
 def validator_node(state):
+
+    if state.get("cached"):
+
+        return state
 
     state["findings"] = validate_findings(
 
@@ -63,7 +111,14 @@ def validator_node(state):
     return state
 
 
+# ---------------- FILTER ----------------
+
+
 def filter_node(state):
+
+    if state.get("cached"):
+
+        return state
 
     state["findings"] = filter_findings(
 
@@ -74,7 +129,14 @@ def filter_node(state):
     return state
 
 
+# ---------------- SOURCE SCORER ----------------
+
+
 def scorer_node(state):
+
+    if state.get("cached"):
+
+        return state
 
     state["findings"] = score_sources(
 
@@ -85,7 +147,14 @@ def scorer_node(state):
     return state
 
 
+# ---------------- ANALYST ----------------
+
+
 def analyst_node(state):
+
+    if state.get("cached"):
+
+        return state
 
     state["report"] = analyze(
 
@@ -96,20 +165,69 @@ def analyst_node(state):
     return state
 
 
+# ---------------- WRITER ----------------
+
+
 def writer_node(state):
 
-    state["document"] = create_document(
+    if state.get("cached"):
 
-        state["report"]
+        return state
+
+    report = state.get(
+
+        "report",
+
+        ""
 
     )
 
+    if not report:
+
+        report = "Report generation failed."
+
+    state["document"] = create_document(
+
+        report
+
+    )
+
+    if report != "Report generation failed.":
+
+        save_cache(
+
+            state["company"],
+
+            state["document"]
+
+        )
+
+        save_report(
+
+            state["company"],
+
+            state["document"]
+
+        )
+
     return state
+
+
+# ---------------- BUILD GRAPH ----------------
 
 
 builder = StateGraph(
 
     ResearchState
+
+)
+
+
+builder.add_node(
+
+    "cache",
+
+    cache_node
 
 )
 
@@ -169,7 +287,17 @@ builder.add_node(
 
 )
 
+
 builder.set_entry_point(
+
+    "cache"
+
+)
+
+
+builder.add_edge(
+
+    "cache",
 
     "planner"
 
@@ -222,5 +350,14 @@ builder.add_edge(
     "writer"
 
 )
+
+builder.add_edge(
+
+    "writer",
+
+    END
+
+)
+
 
 graph = builder.compile()
