@@ -1,31 +1,53 @@
-from agents.memory_agent import get_memory
+from services.comparison_service import get_report
 
 from services.llm_service import ask_llm
 
 
-def compare_companies(company1, company2):
+def compare_companies(
 
-    print("\nCompare Agent working...\n")
+    company1,
 
-    report1 = get_memory(company1)
+    company2
 
-    report2 = get_memory(company2)
+):
+
+    print(
+
+        "\nCompare Agent working...\n"
+
+    )
+
+    report1 = get_report(
+
+        company1
+
+    )
+
+    report2 = get_report(
+
+        company2
+
+    )
 
     if not report1:
 
-        return f"{company1} not found in memory."
+        return f"{company1} report not found."
 
     if not report2:
 
-        return f"{company2} not found in memory."
+        return f"{company2} report not found."
 
     prompt = f"""
+
+You are a Senior Business Research Analyst.
 
 Compare these two companies.
 
 Company 1:
 
 {report1}
+
+------------------
 
 Company 2:
 
@@ -37,10 +59,16 @@ Generate:
 
 2. Differences
 
-3. Which company is stronger
+3. Competitive advantages
 
-4. Final Recommendation
+4. Risks
+
+5. Final recommendation
 
 """
 
-    return ask_llm(prompt)
+    return ask_llm(
+
+        prompt
+
+    )

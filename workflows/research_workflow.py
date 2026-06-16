@@ -16,7 +16,7 @@ from services.cache_service import save_cache
 from services.report_service import save_report
 
 
-class ResearchState(TypedDict):
+class ResearchState(TypedDict, total=False):
 
     company: str
 
@@ -38,11 +38,9 @@ def cache_node(state):
 
     print("\nChecking cache...\n")
 
-    cached_document = get_cache(
+    company = state["company"]
 
-        state["company"]
-
-    )
+    cached_document = get_cache(company)
 
     if cached_document:
 
@@ -170,7 +168,23 @@ def analyst_node(state):
 
 def writer_node(state):
 
+    company = state["company"]
+
+    # Cache hit
+
     if state.get("cached"):
+
+        document = state.get("document")
+
+        if document:
+
+            save_report(
+
+                company,
+
+                document
+
+            )
 
         return state
 
@@ -186,27 +200,29 @@ def writer_node(state):
 
         report = "Report generation failed."
 
-    state["document"] = create_document(
+    document = create_document(
 
         report
 
     )
 
+    state["document"] = document
+
     if report != "Report generation failed.":
 
         save_cache(
 
-            state["company"],
+            company,
 
-            state["document"]
+            document
 
         )
 
         save_report(
 
-            state["company"],
+            company,
 
-            state["document"]
+            document
 
         )
 
@@ -221,7 +237,6 @@ builder = StateGraph(
     ResearchState
 
 )
-
 
 builder.add_node(
 

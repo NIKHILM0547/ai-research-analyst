@@ -4,16 +4,16 @@ def create_research_plan(company):
 
     return [
 
-        f"{company} company overview",
+        f"{company} official company overview",
 
-        f"{company} AI products",
+        f"{company} products and services",
+
+        f"{company} business model",
 
         f"{company} competitors",
 
-        f"{company} market trends",
+        f"{company} AI strategy",
 
-        f"{company} risks",
-
-        f"{company} opportunities"
+        f"{company} recent business risks"
 
     ]

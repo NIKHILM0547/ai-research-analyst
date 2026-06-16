@@ -1,12 +1,16 @@
 from agents.compare_agent import compare_companies
 
 
-response = compare_companies(
+result = compare_companies(
 
     "Nvidia",
 
-    "AMD"
+    "Microsoft"
 
 )
 
-print(response)
+print(
+
+    result
+
+)
