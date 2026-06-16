@@ -1,10 +1,14 @@
 def create_research_plan(company):
 
-    print("\nPlanner Agent working...\n")
+    print(
+
+        "\nPlanner Agent working...\n"
+
+    )
 
     return [
 
-        f"{company} official company overview",
+        f"{company} official company website",
 
         f"{company} products and services",
 

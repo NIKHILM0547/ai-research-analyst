@@ -44,6 +44,8 @@ def cache_node(state):
 
     if cached_document:
 
+        print("Cache found.\n")
+
         state["document"] = cached_document
 
         state["cached"] = True
@@ -170,7 +172,7 @@ def writer_node(state):
 
     company = state["company"]
 
-    # Cache hit
+    # If loaded from cache
 
     if state.get("cached"):
 
@@ -237,6 +239,7 @@ builder = StateGraph(
     ResearchState
 
 )
+
 
 builder.add_node(
 
